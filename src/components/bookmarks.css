@@ -61,6 +61,24 @@
     transform: translateX(2px);
 }
 
+.shortcut.has-favicon {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.shortcut.has-favicon span {
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.bookmark-favicon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+}
+
 .bookmark-folder {
     font-weight: bold;
     margin: 0.4rem 0 0.2rem 0;

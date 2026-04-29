@@ -1,8 +1,16 @@
-function processBookmarks(settings, nodes, container, level = 0, path = "") {
+function getFaviconUrl(url) {
+    const faviconUrl = new URL(chrome.runtime.getURL("/_favicon/"));
+    faviconUrl.searchParams.set("pageUrl", url);
+    faviconUrl.searchParams.set("size", "16");
+    return faviconUrl.toString();
+}
+
+function processBookmarks(settings, nodes, container, level = 0, path = "", topLevelFolder = "") {
     nodes.forEach(node => {
         const currentPath = `${path}/${node.title || "Untitled"}`;
 
         if (node.children && node.children.length > 0) {
+            const currentTopLevelFolder = topLevelFolder || node.title || "Untitled folder";
             const listItem = document.createElement('li');
             listItem.className = 'bookmark-folder-item';
 
@@ -46,7 +54,7 @@ function processBookmarks(settings, nodes, container, level = 0, path = "") {
             listItem.appendChild(childrenList);
             container.appendChild(listItem);
 
-            processBookmarks(settings, node.children, childrenList, level + 1, currentPath);
+            processBookmarks(settings, node.children, childrenList, level + 1, currentPath, currentTopLevelFolder);
         } else if (node.url) {
             const listItem = document.createElement('li');
             listItem.className = 'bookmark-link-item';
@@ -54,7 +62,23 @@ function processBookmarks(settings, nodes, container, level = 0, path = "") {
             const a = document.createElement('a');
             a.href = node.url;
             a.className = 'shortcut';
-            a.textContent = node.title || node.url;
+            const showFavicon = settings.bookmarkFolderFavicons?.[topLevelFolder] === true;
+
+            if (showFavicon) {
+                a.classList.add('has-favicon');
+
+                const favicon = document.createElement('img');
+                favicon.className = 'bookmark-favicon';
+                favicon.src = getFaviconUrl(node.url);
+                favicon.alt = '';
+
+                const title = document.createElement('span');
+                title.textContent = node.title || node.url;
+
+                a.append(favicon, title);
+            } else {
+                a.textContent = node.title || node.url;
+            }
 
             listItem.appendChild(a);
             container.appendChild(listItem);
@@ -81,7 +105,10 @@ function renderBookmarks(settings) {
         processBookmarks(
             settings,
             settings.bookmarkFolder?.trim() ? bookmarksBar.children : tree[0].children,
-            listRoot
+            listRoot,
+            settings.bookmarkFolder?.trim() ? 1 : 0,
+            "",
+            settings.bookmarkFolder?.trim() ? bookmarksBar.title : ""
         );
 
         shortcuts.appendChild(listRoot);

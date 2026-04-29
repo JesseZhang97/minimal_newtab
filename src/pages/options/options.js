@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "tempUnit",
     "bookmarks",
     "bookmarkFolder",
+    "bookmarkFolderFavicons",
     "expandBookmarks",
     "topRight",
     "topRightOrder",
@@ -454,11 +455,29 @@ document.addEventListener("DOMContentLoaded", () => {
   selectElem.append(allOption);
 
   chrome.bookmarks.getTree((tree) => {
+    const faviconOptions = document.getElementById("bookmark-favicon-options");
     tree[0].children.forEach((folder) => {
       const optionElem = document.createElement("option");
       optionElem.value = optionElem.text = folder.title;
       optionElem.selected = settings["bookmarkFolder"] === folder.title;
       selectElem.append(optionElem);
+
+      const label = document.createElement("label");
+      label.className = "checkbox-label";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.setAttribute("data-bookmark-folder", folder.title);
+      checkbox.checked = settings.bookmarkFolderFavicons?.[folder.title] === true;
+
+      const customCheckbox = document.createElement("span");
+      customCheckbox.className = "custom-checkbox";
+
+      const text = document.createElement("span");
+      text.textContent = folder.title || "Untitled folder";
+
+      label.append(checkbox, customCheckbox, text);
+      faviconOptions.append(label);
     });
   });
 
@@ -501,6 +520,15 @@ document.addEventListener("DOMContentLoaded", () => {
         settings_obj[key] = document.querySelector(
           "#bookmark-folder-selector-span select",
         ).value;
+      } else if (key == "bookmarkFolderFavicons") {
+        const folderFavicons = {};
+        document
+          .querySelectorAll("#bookmark-favicon-options input[data-bookmark-folder]")
+          .forEach((checkbox) => {
+            folderFavicons[checkbox.getAttribute("data-bookmark-folder")] =
+              checkbox.checked;
+          });
+        settings_obj[key] = folderFavicons;
       } else if (key == "expandBookmarks") {
         settings_obj[key] = document.getElementById("expand-bookmarks").checked;
       } else if (key == "selectedPixelArt") {
@@ -996,6 +1024,7 @@ function handleImportFile(file) {
         "clockFormat",
         "weather",
         "bookmarks",
+        "bookmarkFolderFavicons",
         "theme",
         "topRight",
         "pixelArt",

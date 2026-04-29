@@ -794,6 +794,19 @@ body.light {
     border-left: 2px solid rgba(128, 128, 128, 0.2);
 }
 
+#bookmark-favicon-options {
+    margin-top: 0.8rem;
+}
+
+#bookmark-favicon-options p {
+    margin: 0 0 0.4rem 0;
+    opacity: 0.8;
+}
+
+#bookmark-favicon-options .checkbox-label {
+    margin: 0.25rem 0;
+}
+
 /* Disabled state for sub-settings - only target specific container IDs */
 .sub-settings.disabled,
 #sidebar-options.disabled,
